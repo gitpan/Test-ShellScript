@@ -1,0 +1,6 @@
+Revision history for Perl extension Test::ShellScript.
+
+0.01  Sun Apr 18 19:29:01 2010
+	- original version; created by h2xs 1.23 with options
+		-AX Test::ShellScript
+
