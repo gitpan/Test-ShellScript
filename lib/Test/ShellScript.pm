@@ -1,6 +1,6 @@
 package Test::ShellScript;
 
-use 5.006;
+use 5.010000;
 use strict;
 use warnings;
 
@@ -104,7 +104,7 @@ Now you must instruct it to run you program and then begin to look for the diffe
 variables and its associated values to show up in the right order. Add the next lines
 to run.t
 
-    run_ok( ''/path/to/run/command ls', "^TEST:");
+    run_ok( '/path/to/run/command ls', "^TEST:");
     isCurrentVariable("executed");
     isCurrentValue("false");
     nextSlot();
@@ -190,7 +190,6 @@ use constant NOT_FOUND => "__NOT_FOUND__";
 use constant UNKNOWN_VALUE => "UNKNOWN VALUE";
 
 my @cmdOutput;
-my $runOK = FALSE;
 
 ## Timeline storage. 
 ## Each array entry contains a refernce to an array whose first element is the
@@ -198,7 +197,7 @@ my $runOK = FALSE;
 my @timeLine;
 my $timeIndex = 0;
 
-
+## Next test number
 my $testNum = 1;
 
 
@@ -226,11 +225,12 @@ sub run_ok($$) {
 	my $cmdLine = shift;
 	my $acceptLines = shift;
 	my $fh;
+	my $runOK = FALSE;
 	
 	@cmdOutput = ();
 	## Not redirects or similar allowed in the command line
 	## TODO : error is shown if the command to run doesn't exist
-	if ( open( $fh , "$cmdLine |") ) {
+	if ( $cmdLine && open( $fh , "$cmdLine |") ) {
 		while( my $line = <$fh>) {
 			push @cmdOutput, $line;
 		};
@@ -356,7 +356,7 @@ sub variable_ocurrences($$) {
 
 =pod
 
-=head2 reset_t1imeline
+=head2 reset_timeline
 
   reset_timeline()
 
@@ -369,10 +369,10 @@ sub reset_timeline() {
 }
 
 sub _ok($$) {
-	my $comparison_is_true = shift;
+	my $isTestOK = shift;
 	my $text = shift;
 
-	$comparison_is_true ?
+	$isTestOK ?
 		print OK : print NOT_OK;
 	print " $testNum - $text\n";
 	$testNum++;

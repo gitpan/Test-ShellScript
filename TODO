@@ -1,0 +1,7 @@
+To Do
+=====
+
+- Let the test pass when it's known that it will file. Similar to isnt in Test::More
+  The basis fir this is in command_validatio.t because with the current implementation
+  can't simple say "it's OK that run_ok fails !!!" or for anything else.
+  Analyze to use Test::More and inherit all its features
