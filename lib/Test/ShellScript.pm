@@ -1,16 +1,20 @@
 package Test::ShellScript;
 
-use 5.010000;
+use 5.008000;
 use strict;
 use warnings;
 
+our $VERSION = '0.03';
+
+use Test::More;
+
 use Exporter ();
 our(@ISA, @EXPORT);
-@ISA = qw(Exporter Test::Simple);
+@ISA = qw(Exporter Test::More);
 @EXPORT = qw( 	run_ok 
-				isCurrentVariable isCurrentValue nextSlot resetTimeline 
-				reset_timeline variable_ok variable_ocurrences
-			);
+		isCurrentVariable isCurrentValue nextSlot resetTimeline 
+		reset_timeline variable_ok variable_ocurrences
+	);
 
 
 =pod
@@ -170,11 +174,37 @@ What they do is to reset the timeline, count how many times the variable 'execut
 is shown, resets the timeline again and now counts how many times the 'non_exisent_variable'
 variable is shown.  
 
+=head1 using Test::More
+
+As a side effect a compatbility with Test::More has been added meaning that you can
+mix Test::More and Test::ShellScript testing in the same test.
+
+e.g.
+
+  use 5.006;
+  use strict;
+  use warnings;
+  use Test::ShellScript;
+  use Test::More;
+  
+  my $testNUmber = 1;
+  run_ok( '/path/to/run/command ls', "^TEST:");
+  
+  ### --- step by step mode
+  $testNUmber++;
+  isCurrentVariable("executed");
+  
+  ### using Test::More
+  ok( $testNUmber == 2 );
+
+  ### Back again to Test::ShellScript !!!
+  isCurrentValue("ls");
+  isCurrentValue("false");
+  
+
 =head1 METHODS
 
 =cut
-
-our $VERSION = '0.01';
 
 
 use constant   OK => "ok";
@@ -197,14 +227,10 @@ my @cmdOutput;
 my @timeLine;
 my $timeIndex = 0;
 
-## Next test number
-my $testNum = 1;
-
 
 ## Always runs with no plan, it's simpler for script programmers
 END {
-	$testNum--;
-	print "1..$testNum\n";
+	done_testing();
 }
 
 
@@ -244,7 +270,7 @@ sub run_ok($$) {
 	} else {
 		$runOK = FALSE;
 	};
-	_ok($runOK, "command: '$cmdLine'");	
+	ok($runOK, "command: '$cmdLine'");	
 };
 
 =pod
@@ -260,8 +286,14 @@ test if the variable passed as argument exists in the current time slot
 sub isCurrentVariable($) {
 	my $variable = shift;
 	
-	_ok( $timeLine[$timeIndex]->[VAR] eq $variable,
-	     "Current variable is '" . $timeLine[$timeIndex]->[VAR] ."'" );
+	
+	## TODO check these vlidations
+	return if ! _check($variable, "Undefined passed variable name");
+	my $timelineVariable = $timeLine[$timeIndex]->[VAR];
+	return if ! _check($timelineVariable, "Undefined variable name in timeline" );
+
+	ok( $timelineVariable eq $variable,
+	     "Current variable is '$timelineVariable'" );
 
 }
 
@@ -280,8 +312,13 @@ as parameter
 sub isCurrentValue($) {
 	my $value = shift;
 	
-	_ok( $timeLine[$timeIndex]->[VALUE] eq $value,
-		"Current value is '" . $timeLine[$timeIndex]->[VALUE] ."'" );
+	## TODO test these validations
+	return if ! _check($value, "Undefined passed variable value" );
+	my $timelineValue = $timeLine[$timeIndex]->[VALUE];
+	return if ! _check($timelineValue, "Undefined variable value in timeline" );
+
+	ok( $timelineValue eq $value,
+		"Current value is '$timelineValue'" );
 
 }
 
@@ -297,8 +334,12 @@ advances to the next time slot
 =cut
 
 sub nextSlot() {
-	$timeIndex++ 
-		if ($timeIndex < @timeLine);
+	if ($timeIndex < @timeLine) {
+		$timeIndex++
+	} else {
+		## TODO test this
+		_notOK("Can't pass beyond last slot");
+	};
 }
 
 =pod
@@ -332,8 +373,12 @@ sub variable_ok($$) {
 	my $var = shift;
 	my $value = shift;
 	
+	## TODO check these vlidations
+	return if ! _check($var, "Undefined passed variable name");
+	return if ! _check($value, "Undefined passed variable value");
+	
 	my ($found, $realValue) = _getNextValue($var);
-	_ok( $found && $realValue eq $value, "'$var' = '$realValue'");
+	ok( $found && $realValue eq $value, "'$var' = '$realValue'");
 }
 
 =pod
@@ -350,8 +395,13 @@ sub variable_ocurrences($$) {
 	my $var = shift;
 	my $value = shift;
 	
+	
+	## TODO check these vlidations
+	return if ! _check($var, "Undefined passed variable name");
+	return if ! _check($value, "Undefined passed variable value");
+
 	my $count = _varOccursTimes($var);
-	_ok( $count == $value, "Variable '$var' found '$count' times");
+	ok( $count == $value, "Variable '$var' found '$count' times");
 }
 
 =pod
@@ -368,14 +418,20 @@ sub reset_timeline() {
 	resetTimeline()
 }
 
-sub _ok($$) {
-	my $isTestOK = shift;
-	my $text = shift;
+sub _notOK($) {
+	my $msg = shift;
+	ok( FALSE, $msg );
+}
 
-	$isTestOK ?
-		print OK : print NOT_OK;
-	print " $testNum - $text\n";
-	$testNum++;
+sub _check($$) {
+	my $var = shift;
+	my $msg = shift;
+	if ( ! defined $var ) {
+		_notOK( $msg );
+		return FALSE;   
+	} else {
+		return TRUE;
+	};
 }
 
 sub _getNextValue($) {
@@ -421,6 +477,17 @@ sub _parseOutput($) {
 1;
 
 =pod
+
+=head1 CONTRIBUTORS
+
+=over 1
+
+=item Matias Palomec <matias.palomec at gmail.com>  
+
+=item Luis Agustin Nieto
+
+=back
+
 
 =head1 AUTHOR
 

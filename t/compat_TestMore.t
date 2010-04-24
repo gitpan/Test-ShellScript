@@ -4,7 +4,7 @@ use 5.008000;
 use strict;
 use warnings;
 use Test::ShellScript;
-
+use Test::More tests => 6;
 
 sub getCmdLine() {
 	use Cwd 'abs_path';
@@ -17,15 +17,14 @@ sub getCmdLine() {
 	return "$myPath/../samples/run.sh ls";
 }
 
+### --- step by step mode
 run_ok(getCmdLine(), "^TEST:");
+isCurrentVariable("params");
 
-### --- continuous time flow mode
-reset_timeline();
-variable_ok("executed", "false");
-variable_ok("executed", "true");
+### using Test::More
+ok(1);
+isnt(1, 2, "ddddddddddd");
+is (1, 1, "ssssssssss");
 
-reset_timeline();
-variable_ok("params", "ls");
-variable_ok("executed", "false");
-variable_ok("executed", "true");
-variable_ok("output", "0");
+### Back again to Test::ShellScript !!!
+isCurrentValue("ls");
