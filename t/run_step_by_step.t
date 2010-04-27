@@ -5,24 +5,14 @@ use strict;
 use warnings;
 use Test::ShellScript;
 
-
-sub getCmdLine() {
-	use Cwd 'abs_path';
-	
-	my @path = split '/', $0;
-	pop @path; ## extract filename
-	my $myPath = join '/', @path;
-	$myPath = abs_path($myPath);
-	
-	return "$myPath/../samples/run.sh ls";
-}
+require('t/lib/Internal.pm');
 
 ### --- step by step mode
-run_ok(getCmdLine(), "^TEST:");
+run_ok(Internal::getCmdLine(), "^TEST:");
 isCurrentVariable("params");
-isCurrentValue("ls");
+isCurrentValue("echo");
 isCurrentVariable("params");
-isCurrentValue("ls");
+isCurrentValue("echo");
 
 nextSlot();
 isCurrentVariable("executed");

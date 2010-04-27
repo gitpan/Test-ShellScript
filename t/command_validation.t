@@ -5,4 +5,4 @@ use strict;
 use warnings;
 use Test::ShellScript;
 
-run_ok('ls', "^TEST:");
+run_ok('echo MEANINGLESS_TEST', "^TEST:");

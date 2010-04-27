@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'Test::ShellScript',
     VERSION_FROM      => 'lib/Test/ShellScript.pm', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    PREREQ_PM         => {Test::More}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Test/ShellScript.pm', # retrieve abstract from module
        AUTHOR         => 'Victor A. Rodriguez <Bit-Man>') : ()),

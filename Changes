@@ -1,6 +1,10 @@
 Revision history for Perl extension Test::ShellScript.
 
-0.03  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+0.04  Tue Apr 27 01:57:40 ART 2010
+        - Adding support for MSWin32
+          (https://rt.cpan.org/Ticket/Display.html?id=56896)
+
+0.03  Sat Apr 24 10:15:41 ART 2010
         - allowed to run on Perl 5.8. Thanks Luis Agustin Nieto.
           Also seen at http://www.cpantesters.org/cpan/report/07155104-b19f-3f77-b713-d32bba55d77f
         - Fixes Version number

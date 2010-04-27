@@ -6,19 +6,10 @@ use warnings;
 use Test::ShellScript;
 use Test::More tests => 6;
 
-sub getCmdLine() {
-	use Cwd 'abs_path';
-	
-	my @path = split '/', $0;
-	pop @path; ## extract filename
-	my $myPath = join '/', @path;
-	$myPath = abs_path($myPath);
-	
-	return "$myPath/../samples/run.sh ls";
-}
+require('t/lib/Internal.pm');
 
 ### --- step by step mode
-run_ok(getCmdLine(), "^TEST:");
+run_ok(Internal::getCmdLine(), "^TEST:");
 isCurrentVariable("params");
 
 ### using Test::More
@@ -27,4 +18,4 @@ isnt(1, 2, "ddddddddddd");
 is (1, 1, "ssssssssss");
 
 ### Back again to Test::ShellScript !!!
-isCurrentValue("ls");
+isCurrentValue("echo");
